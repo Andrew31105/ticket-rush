@@ -58,6 +58,7 @@ ticket-rush/
         ├── application.yml
         └── scripts
             └── deduct_inventory.lua    # Lua script xử lý tồn kho atomic
+---
 ```text
 🏗️ System Architecture
 graph TD
@@ -76,7 +77,7 @@ graph TD
     OC[OrderCleaner Scheduler]
     OC --> DB
     OC --> R
-```text
+---
 🚀 Key Features
 1️⃣ High Concurrency Control (Core Feature)
 
@@ -167,7 +168,6 @@ POST /api/auth/login
 🎫 Booking (ROLE_USER)
 POST /api/bookings?eventId=101
 Authorization: Bearer <token>
-
 
 Responses:
 
