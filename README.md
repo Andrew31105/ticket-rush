@@ -1,162 +1,193 @@
+🎟️ TicketRush – High Performance Ticket Booking System
+📖 Introduction
+
+TicketRush là một backend system mô phỏng nền tảng đặt vé có lượng truy cập cao (flash sale, concert ticket, limited offer).
+
+Dự án tập trung giải quyết các bài toán phổ biến trong distributed system:
+
+Ngăn overselling khi nhiều user đặt vé cùng lúc
+
+Giảm tải database khi traffic tăng đột biến
+
+Đảm bảo bảo mật & phân quyền rõ ràng
+
+Tự động phục hồi tồn kho khi đơn hàng bị treo
+
+🧠 Core Problems & Solutions
+Vấn đề	Cách TicketRush xử lý
+Race Condition	Redis Lua Script chạy atomic
+System Overload	Kafka Event-driven để buffer request
+Security	JWT + RBAC (Spring Security)
+Data Inconsistency	Scheduler quét & hoàn kho
+🗂️ Project Structure
 ticket-rush/
-├── docker-compose.yml              # Hạ tầng: Redis, Kafka, Zookeeper, PostgreSQL
-├── pom.xml                         # Dependencies: Web, Security, Redis, Kafka, JJWT, Lombok
-├── README.md                       # Tài liệu dự án (Paste nội dung bên dưới vào đây)
-└── src/
-    └── main/
-        ├── java/com/ticketrush/
-        │   ├── config/
-        │   │   ├── AppConfig.java          # Config Lua Script
-        │   │   └── SecurityConfig.java     # Config phân quyền (RBAC), Filter Chain
-        │   ├── controller/
-        │   │   ├── AuthController.java     # API Login/Register
-        │   │   ├── BookingController.java  # API Đặt vé (User)
-        │   │   └── AdminController.java    # API Quản lý kho (Admin)
-        │   ├── dto/
-        │   │   ├── AuthRequest.java        # Login Payload
-        │   │   └── BookingRequest.java     # Booking Payload
-        │   ├── entity/
-        │   │   ├── User.java               # Entity User (JPA)
-        │   │   ├── Booking.java            # Entity Đơn hàng
-        │   │   └── Role.java               # Enum: ADMIN, USER
-        │   ├── repository/
-        │   │   ├── UserRepository.java
-        │   │   └── BookingRepository.java
-        │   ├── security/
-        │   │   ├── JwtService.java         # Tạo & Parse Token
-        │   │   ├── JwtAuthFilter.java      # Chặn request để check Token
-        │   │   └── UserDetailsImpl.java    # Custom UserDetails
-        │   ├── service/
-        │   │   ├── AuthService.java        # Logic đăng nhập
-        │   │   ├── TicketService.java      # Logic Redis Lua + Kafka Producer
-        │   │   ├── BookingConsumer.java    # Kafka Consumer (Lưu DB)
-        │   │   └── OrderCleaner.java       # Scheduler (Quét đơn treo)
-        │   └── TicketRushApplication.java
-        └── resources/
-            ├── application.yml             # Cấu hình DB, Redis, Kafka, JWT Secret
-            └── scripts/
-                └── deduct_inventory.lua    # Script xử lý tồn kho Atomic
+├── docker-compose.yml              # Redis, Kafka, Zookeeper, PostgreSQL
+├── pom.xml                         # Spring Boot, Security, Redis, Kafka, JWT
+├── README.md
+└── src/main
+    ├── java/com/ticketrush
+    │   ├── config
+    │   │   ├── AppConfig.java          # Load Redis Lua Script
+    │   │   └── SecurityConfig.java     # JWT Filter + RBAC
+    │   ├── controller
+    │   │   ├── AuthController.java     # Login / Register
+    │   │   ├── BookingController.java  # User booking API
+    │   │   └── AdminController.java    # Admin inventory API
+    │   ├── dto
+    │   │   ├── AuthRequest.java
+    │   │   └── BookingRequest.java
+    │   ├── entity
+    │   │   ├── User.java
+    │   │   ├── Booking.java
+    │   │   └── Role.java               # ADMIN, USER
+    │   ├── repository
+    │   │   ├── UserRepository.java
+    │   │   └── BookingRepository.java
+    │   ├── security
+    │   │   ├── JwtService.java
+    │   │   ├── JwtAuthFilter.java
+    │   │   └── UserDetailsImpl.java
+    │   ├── service
+    │   │   ├── AuthService.java
+    │   │   ├── TicketService.java      # Redis Lua + Kafka Producer
+    │   │   ├── BookingConsumer.java    # Kafka Consumer → DB
+    │   │   └── OrderCleaner.java       # Scheduler xử lý đơn treo
+    │   └── TicketRushApplication.java
+    └── resources
+        ├── application.yml
+        └── scripts
+            └── deduct_inventory.lua    # Lua script xử lý tồn kho atomic
 
-# TicketRush - High Performance Ticket Booking System
-
-![Java](https://img.shields.io/badge/Java-21-orange?style=flat&logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-green?style=flat&logo=springboot)
-![Security](https://img.shields.io/badge/Spring_Security-RBAC-blue?style=flat&logo=springsecurity)
-![Redis](https://img.shields.io/badge/Redis-Lua_Scripting-red?style=flat&logo=redis)
-![Kafka](https://img.shields.io/badge/Apache_Kafka-Event_Driven-black?style=flat&logo=apachekafka)
-
-## 📖 Introduction
-
-**TicketRush** is a robust backend system designed to simulate a high-concurrency ticket booking platform (e.g., concert flash sales). 
-
-It addresses common distributed system challenges:
-1.  **Race Conditions:** Prevents overselling using **Redis Atomic Operations**.
-2.  **System Overload:** Uses **Event-Driven Architecture (Kafka)** to decouple high-throughput ingestion from heavy database writes.
-3.  **Security:** Implements **Stateless Authentication** with JWT and **Role-Based Access Control (RBAC)**.
-4.  **Data Consistency:** Includes a **Self-Healing Scheduler** to recover inventory from abandoned bookings.
-
-## 🏗️ System Architecture
-
-```mermaid
+🏗️ System Architecture
 graph TD
-    User((User)) -->|1. Booking Request + JWT| Gateway[API Gateway / Controller]
-    
-    subgraph "Security Layer"
-        Gateway -->|Verify Token| Auth[Spring Security Filter]
-    end
+    U[User] -->|HTTP + JWT| C[Controller]
 
-    subgraph "High-Speed Layer (Sync)"
-        Auth -->|2. Atomic Decrement| Redis[(Redis + Lua Script)]
-        Redis -- Success --> KafkaProd[Kafka Producer]
-        Redis -- Fail (Sold Out) --> User
-    end
+    C -->|JWT Check| S[Spring Security Filter]
 
-    subgraph "Reliability Layer (Async)"
-        KafkaProd -->|3. Publish Event| Kafka{Apache Kafka}
-        Kafka -->|4. Consume| Worker[Booking Consumer]
-        Worker -->|5. Persist| Postgres[(PostgreSQL)]
-    end
+    S -->|Atomic Decrement| R[Redis + Lua]
+    R -- Success --> KP[Kafka Producer]
+    R -- Sold Out --> U
 
-    subgraph "Maintenance Layer"
-        Scheduler[Cron Job] -->|6. Scan & Revert Expired| Postgres
-        Scheduler -->|7. Restock| Redis
-    end
+    KP --> K[Kafka Topic]
+    K --> BC[Booking Consumer]
+    BC --> DB[(PostgreSQL)]
+
+    OC[OrderCleaner Scheduler]
+    OC --> DB
+    OC --> R
 
 🚀 Key Features
-1. Concurrency Control (The Core)
-Instead of using slow Database Locking (Pessimistic/Optimistic), TicketRush uses Redis Lua Scripting.
+1️⃣ High Concurrency Control (Core Feature)
 
-Why? Lua scripts execute atomically on the Redis server.
+Không dùng DB Lock (pessimistic / optimistic)
 
-Result: We can handle thousands of concurrent requests/sec with zero race conditions and minimal latency (< 10ms response).
+Dùng Redis Lua Script chạy atomic
 
-2. Asynchronous Processing
-Kafka acts as a buffer for incoming requests.
+Xử lý hàng nghìn request/giây
 
-The API responds immediately with 202 Accepted, improving User Experience (UX) and preventing server thread exhaustion.
+Đảm bảo zero overselling
 
-3. Advanced Security
-JWT Authentication: Stateless logic suitable for microservices.
+👉 Response time trung bình < 20ms
 
-RBAC:
+2️⃣ Asynchronous Processing (Kafka)
 
-ROLE_USER: Can book tickets.
+API trả về nhanh 202 Accepted
 
-ROLE_ADMIN: Can restock inventory and view analytics.
+Kafka xử lý ghi DB phía sau
 
-4. Self-Healing Mechanism (Scheduler)
-A background job runs every minute to find "stuck" or unpaid orders.
+Tránh tình trạng DB bottleneck
 
-It automatically cancels them and returns tickets to the Redis inventory, ensuring data consistency between Cache and Database.
+Phù hợp mô hình real-world (Shopee / Ticketmaster)
+
+3️⃣ Security & RBAC
+
+JWT Stateless Authentication
+
+Phân quyền rõ ràng:
+
+ROLE_USER: đặt vé
+
+ROLE_ADMIN: quản lý tồn kho
+
+4️⃣ Self-Healing Scheduler
+
+Quét đơn hàng treo / chưa thanh toán
+
+Hủy đơn quá hạn
+
+Hoàn vé về Redis
+
+Đảm bảo cache & DB luôn nhất quán
 
 🛠️ Tech Stack
-Core: Java 21, Spring Boot 3.2
-
-Database: PostgreSQL, Redis (Cache & Lock)
-
-Messaging: Apache Kafka
-
-Security: Spring Security 6, JJWT
-
-DevOps: Docker, Docker Compose
-
+Layer	Technology
+Language	Java 21
+Framework	Spring Boot 3.2
+Security	Spring Security 6, JWT
+Cache	Redis + Lua
+Messaging	Apache Kafka
+Database	PostgreSQL
+DevOps	Docker, Docker Compose
 ⚡ Getting Started
-1. Prerequisites
-Docker & Docker Compose installed.
+1️⃣ Prerequisites
 
-Maven & Java 21 installed.
+Java 21
 
-2. Start Infrastructure
+Maven
+
+Docker & Docker Compose
+
+2️⃣ Start Infrastructure
 docker-compose up -d
-# This spins up Redis, Kafka, Zookeeper, and PostgreSQL
-3. Initialize Inventory
-Since the logic relies on Redis, set the initial stock (e.g., Event 101 has 10 tickets):
-docker exec -it ticket-rush-redis-1 redis-cli SET event_tickets:101 10
-4. Run the Application
+
+
+Chạy:
+
+Redis
+
+Kafka
+
+Zookeeper
+
+PostgreSQL
+
+3️⃣ Initialize Inventory
+docker exec -it ticket-rush-redis-1 redis-cli
+SET event_tickets:101 10
+
+4️⃣ Run Application
 mvn spring-boot:run
 
-🧪 API Documentation
-1. Authentication
-POST /api/auth/register - Create a new user.
+🧪 API Overview
+🔐 Authentication
+POST /api/auth/register
+POST /api/auth/login
 
-POST /api/auth/login - Login to get Bearer Token.
-
-2. Booking (Requires ROLE_USER)
+🎫 Booking (ROLE_USER)
 POST /api/bookings?eventId=101
+Authorization: Bearer <token>
 
-Header: Authorization: Bearer <your_token>
 
-Response: 202 Accepted (Request queued) or 409 Conflict (Sold out).
+Responses:
 
-3. Admin (Requires ROLE_ADMIN)
-POST /api/admin/restock?eventId=101&amount=100
+202 Accepted – Đặt vé thành công
 
-Header: Authorization: Bearer <admin_token>
+409 Conflict – Hết vé
 
-📊 Performance Testing
-Simulating 100 concurrent users competing for 10 tickets using JMeter:
-Metric,Result
-Successful Bookings,Exactly 10
-Overselling,0 (Zero)
-Avg Response Time,15ms
-Database Load,Low (Buffered by Kafka)
+🛠️ Admin (ROLE_ADMIN)
+POST /api/admin/restock?eventId=101&amount=50
+Authorization: Bearer <admin_token>
+
+📊 Performance Test (JMeter)
+Metric	Result
+Concurrent Users	100
+Available Tickets	10
+Successful Orders	10
+Overselling	0
+Avg Response Time	~15ms
+DB Load	Low (Kafka buffered)
+🎯 Purpose of This Project
+
+Thực hành System Design thực tế
+
+Mô phỏng backend cho high traffic system
