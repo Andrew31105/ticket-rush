@@ -20,6 +20,7 @@ System Overload	Kafka Event-driven để buffer request
 Security	JWT + RBAC (Spring Security)
 Data Inconsistency	Scheduler quét & hoàn kho
 🗂️ Project Structure
+```text
 ticket-rush/
 ├── docker-compose.yml              # Redis, Kafka, Zookeeper, PostgreSQL
 ├── pom.xml                         # Spring Boot, Security, Redis, Kafka, JWT
@@ -57,7 +58,7 @@ ticket-rush/
         ├── application.yml
         └── scripts
             └── deduct_inventory.lua    # Lua script xử lý tồn kho atomic
-
+```text
 🏗️ System Architecture
 graph TD
     U[User] -->|HTTP + JWT| C[Controller]
@@ -75,7 +76,7 @@ graph TD
     OC[OrderCleaner Scheduler]
     OC --> DB
     OC --> R
-
+```text
 🚀 Key Features
 1️⃣ High Concurrency Control (Core Feature)
 
