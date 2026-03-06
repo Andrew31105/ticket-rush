@@ -1,4 +1,4 @@
 package repository;
 
-public class BookingRepository {
+public class BookingRepository implements IBookingRepository {
 }

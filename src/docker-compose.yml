@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # 1. Database - Lưu trữ vĩnh viễn (User, Booking, Role)
+  postgres:
+    image: postgres:16-alpine
+    container_name: ticket-rush-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ticket_rush_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. Redis - Xử lý tồn kho siêu tốc (Atomic Lua Script)
+  redis:
+    image: redis:7-alpine
+    container_name: ticket-rush-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # 3. Zookeeper - "Quản lý" cho Kafka
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: ticket-rush-zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+
+  # 4. Kafka - Giảm chấn, xử lý đơn hàng bất đồng bộ
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: ticket-rush-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+    depends_on:
+      - zookeeper
+
+volumes:
+  postgres_data:
+  redis_data:
