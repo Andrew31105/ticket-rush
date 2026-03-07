@@ -1,4 +1,4 @@
-package utils;
+package com.ticketrush.utils;
 
 
 import io.jsonwebtoken.Jwts;
@@ -24,7 +24,7 @@ public class JWTUtils {
                 .compact();
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getUsername(String token) {
         return Jwts.parser()
                 .verifyWith(key)
                 .build()

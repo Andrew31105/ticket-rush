@@ -1,4 +1,4 @@
-package service;
+package com.ticketrush.service;
 
 
 import lombok.RequiredArgsConstructor;

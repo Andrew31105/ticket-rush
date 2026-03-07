@@ -27,28 +27,28 @@ ticket-rush/
 ├── README.md
 └── src/main
     ├── java/com/ticketrush
-    │   ├── config
+    │   ├── com.ticketrush.config
     │   │   ├── AppConfig.java          # Load Redis Lua Script
     │   │   └── SecurityConfig.java     # JWT Filter + RBAC
-    │   ├── controller
+    │   ├── com.ticketrush.controller
     │   │   ├── AuthController.java     # Login / Register
     │   │   ├── BookingController.java  # User booking API
     │   │   └── AdminController.java    # Admin inventory API
     │   ├── dto
     │   │   ├── AuthRequest.java
     │   │   └── BookingRequest.java
-    │   ├── entity
+    │   ├── com.ticketrush.entity
     │   │   ├── User.java
     │   │   ├── Booking.java
     │   │   └── Role.java               # ADMIN, USER
-    │   ├── repository
+    │   ├── com.ticketrush.repository
     │   │   ├── UserRepository.java
     │   │   └── BookingRepository.java
     │   ├── security
     │   │   ├── JwtService.java
     │   │   ├── JwtAuthFilter.java
     │   │   └── UserDetailsImpl.java
-    │   ├── service
+    │   ├── com.ticketrush.service
     │   │   ├── AuthService.java
     │   │   ├── TicketService.java      # Redis Lua + Kafka Producer
     │   │   ├── BookingConsumer.java    # Kafka Consumer → DB

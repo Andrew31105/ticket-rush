@@ -1,7 +1,7 @@
-package repository;
+package com.ticketrush.repository;
 
 
-import entity.Booking;
+import com.ticketrush.entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

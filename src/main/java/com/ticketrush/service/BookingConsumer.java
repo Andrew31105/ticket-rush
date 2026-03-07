@@ -1,15 +1,13 @@
-package service;
+package com.ticketrush.service;
 
 
-import entity.Booking;
+import com.ticketrush.entity.Booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import repository.BookingRepository;
-import repository.IBookingRepository;
-import repository.IUserRepository;
-import repository.UserRepository;
+import com.ticketrush.repository.IBookingRepository;
+import com.ticketrush.repository.IUserRepository;
 
 @Service
 @RequiredArgsConstructor

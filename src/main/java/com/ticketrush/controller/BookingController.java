@@ -1,15 +1,15 @@
-package controller;
+package com.ticketrush.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import model.ResponeDTO;
-import model.resquest.BookingRequest;
+import com.ticketrush.model.ResponeDTO;
+import com.ticketrush.model.resquest.BookingRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import repository.IBookingRepository;
+import com.ticketrush.repository.IBookingRepository;
 
 @RestController
 @RequestMapping("/api/bookings")

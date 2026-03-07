@@ -1,4 +1,4 @@
-package entity;
+package com.ticketrush.entity;
 
 
 import jakarta.persistence.*;
