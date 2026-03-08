@@ -2,7 +2,7 @@ package com.ticketrush.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import com.ticketrush.model.ResponeDTO;
+import com.ticketrush.model.respone.ResponeDTO;
 import com.ticketrush.model.resquest.BookingRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
