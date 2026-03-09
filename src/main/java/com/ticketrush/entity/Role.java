@@ -1,17 +1,10 @@
 package com.ticketrush.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Data;
-
-@Entity
-@Data
-@Table(name = "roles")
-public class Role {
-    @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
-    private Long id;
-    private String role;
+/**
+ * Role được dùng như enum trong User (@Enumerated(EnumType.STRING))
+ * Không phải @Entity riêng biệt
+ */
+public enum Role {
+    ROLE_USER,
+    ROLE_ADMIN
 }

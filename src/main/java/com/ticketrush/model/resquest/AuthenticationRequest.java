@@ -1,24 +1,12 @@
 package com.ticketrush.model.resquest;
 
+import lombok.Data;
 
-
+@Data
 public class AuthenticationRequest {
-    private String Username;
-    private String Password;
+    // BUG CŨ: tên biến viết hoa đầu (Username, Password) → getter/setter bị lệch convention
+    // FIX: lowercase, dùng Lombok @Data để tự generate getter/setter chuẩn
+    private String username;
+    private String password;
 
-    public String getUsername() {
-        return Username;
-    }
-
-    public String getPassword() {
-        return Password;
-    }
-
-    public void setUsername(String username) {
-        Username = username;
-    }
-
-    public void setPassword(String password) {
-        Password = password;
-    }
 }

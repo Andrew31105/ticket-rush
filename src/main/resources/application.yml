@@ -1,6 +1,11 @@
 server:
   port: 8080
 
+# JWT config - secret phải là chuỗi Base64 của key >= 32 ký tự (256-bit cho HS256)
+jwt:
+  secret: dGhpcyBpcyBhIHZlcnkgc2VjcmV0IGtleSBmb3IgdGlja2V0cnVzaA==
+  expiration: 86400000
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/ticket_db
