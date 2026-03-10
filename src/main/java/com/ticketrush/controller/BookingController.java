@@ -1,14 +1,12 @@
 package com.ticketrush.controller;
 
 
+import com.ticketrush.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import com.ticketrush.model.respone.ResponeDTO;
 import com.ticketrush.model.resquest.BookingRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.ticketrush.repository.IBookingRepository;
 
 @RestController
@@ -16,15 +14,17 @@ import com.ticketrush.repository.IBookingRepository;
 @RequiredArgsConstructor
 public class BookingController {
 
-        private final IBookingRepository bookingRepository;
+        private final TicketService ticketService;
 
-        @PostMapping
-        public ResponeDTO createBooking(@RequestBody BookingRequest request, @AuthenticationPrincipal UserDeail userDeail){
-
-
-            return new ResponeDTO();
+        @PostMapping("/create")
+        public ResponeDTO createBooking(@RequestBody BookingRequest request){
+            return ticketService.bookTicket(request);
         }
 
+        @DeleteMapping("/cancle/{bookingId}")
+        public ResponeDTO CancleTicket(@RequestBody BookingRequest){
+            return null;
+        }
 }
 
 

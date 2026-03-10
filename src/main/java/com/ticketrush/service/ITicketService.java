@@ -1,6 +1,9 @@
 package com.ticketrush.service;
 
-public interface ITicketService {
-    public  boolean bookTicket(String usserName, String eventId);
+import com.ticketrush.model.respone.ResponeDTO;
+import com.ticketrush.model.resquest.BookingRequest;
 
+public interface ITicketService {
+    public ResponeDTO bookTicket(BookingRequest bookingRequest);
+    public ResponeDTO deleteTicket(BookingRequest bookingRequest);
 }

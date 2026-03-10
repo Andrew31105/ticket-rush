@@ -26,7 +26,9 @@ public class BookingConsumer {
 
         log.info("Consumed message: " + message);
         Booking booking = new Booking();
-        booking.setUserId(userRepository.findByUsername(userName).getId());
+        booking.setUserId(userRepository.findByUsername(userName)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userName))
+                .getId());
         booking.setEventId(Long.parseLong(eventId));
         booking.setStatus("CONFIRMED");
         bookingRepository.save(booking);
