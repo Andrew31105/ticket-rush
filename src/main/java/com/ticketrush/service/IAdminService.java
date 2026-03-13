@@ -5,5 +5,6 @@ import com.ticketrush.model.resquest.AdminRequest;
 
 
 public interface IAdminService {
-    public ResponeDTO Add_ticket(AdminRequest adminRequest);
+    public ResponeDTO Update_ticket(AdminRequest adminRequest);
+    public void delete_ticket(String eventId);
 }
